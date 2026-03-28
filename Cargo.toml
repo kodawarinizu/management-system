@@ -14,8 +14,8 @@ serde_json = "1"
 # Base de datos (ORM async)
 sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio", "macros"] }
 
-# Hash seguro de contraseñas (bcrypt / argon2)
-argon2 = "0.5"
+# Password Hash
+argon2 = { version = "0.5.3", features = ["std"] }
 
 # Cliente HTTP para consumo de APIs externas
 reqwest = { version = "0.11", features = ["json"] }
@@ -34,6 +34,7 @@ uuid = { version = "1", features = ["v4"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 rust_decimal = "1.41.0"
+
 
 [dev-dependencies]
 tokio-test = "0.4"
