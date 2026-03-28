@@ -1,5 +1,7 @@
 use crate::domain::errors::DomainError;
 
+
+
 #[derive(Debug)]
 pub struct Email(String);
 impl Email {
