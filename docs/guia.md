@@ -69,7 +69,7 @@ sistema_gestion/
 │   └── infrastructure/              # Adaptadores externos
 │       ├── mod.rs
 │       ├── persistence/
-│       │   ├── sqlite_employee_repo.rs
+│       │   ├── postgres_employee_repo.rs
 │       │   └── schema.sql
 │       ├── external_api/
 │       │   └── country_api_adapter.rs  # Consumo API externa (U3)
@@ -99,8 +99,8 @@ tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
-# Base de datos (ORM async)
-sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio", "macros"] }
+# Base de datos (ORM async) — PostgreSQL 18
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio", "macros", "uuid"] }
 
 # Hash seguro de contraseñas (bcrypt / argon2)
 argon2 = "0.5"
@@ -366,12 +366,12 @@ impl CreateEmployeeUseCase {
 
 ---
 
-## 🗄️ Unidad 2 — Infraestructura: Adaptador SQLite
+## 🗄️ Unidad 2 — Infraestructura: Adaptador PostgreSQL 18
 
 ```rust
-// src/infrastructure/persistence/sqlite_employee_repo.rs
+// src/infrastructure/persistence/postgres_employee_repo.rs
 use async_trait::async_trait;
-use sqlx::SqlitePool;
+use sqlx::PgPool;
 use uuid::Uuid;
 use crate::domain::{
     entities::{Employee, Department},
@@ -379,13 +379,13 @@ use crate::domain::{
     errors::DomainError,
 };
 
-pub struct SqliteEmployeeRepository {
-    pool: SqlitePool,
+pub struct PostgresEmployeeRepository {
+    pool: PgPool,
 }
 
-impl SqliteEmployeeRepository {
+impl PostgresEmployeeRepository {
     pub async fn new(database_url: &str) -> Result<Self, sqlx::Error> {
-        let pool = SqlitePool::connect(database_url).await?;
+        let pool = PgPool::connect(database_url).await?;
         sqlx::query(include_str!("schema.sql"))
             .execute(&pool)
             .await?;
@@ -394,13 +394,14 @@ impl SqliteEmployeeRepository {
 }
 
 #[async_trait]
-impl EmployeeRepository for SqliteEmployeeRepository {
+impl EmployeeRepository for PostgresEmployeeRepository {
     async fn save(&self, employee: &Employee) -> Result<(), DomainError> {
+        // PostgreSQL usa $1, $2... en vez de ? (SQLite)
         sqlx::query(
             "INSERT INTO employees (id, name, department, email, password_hash, salary, active)
-             VALUES (?, ?, ?, ?, ?, ?, ?)"
+             VALUES ($1, $2, $3, $4, $5, $6, $7)"
         )
-        .bind(employee.id.to_string())
+        .bind(employee.id)                              // UUID nativo en Postgres
         .bind(&employee.name)
         .bind(format!("{:?}", employee.department))
         .bind(&employee.email)
@@ -531,11 +532,11 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
     let db_url = std::env::var("DATABASE_URL")
-        .unwrap_or("sqlite:./sistema.db".to_string());
+        .unwrap_or("postgres://postgres:postgres@localhost:5432/sistema_gestion".to_string());
 
     // Infraestructura
     let repo = Arc::new(
-        infrastructure::persistence::SqliteEmployeeRepository::new(&db_url).await?
+        infrastructure::persistence::PostgresEmployeeRepository::new(&db_url).await?
     );
 
     // Casos de uso (inyección de dependencias)
@@ -609,7 +610,7 @@ async fn test_password_no_se_almacena_en_texto_plano() {
 | **Repository** | `domain/ports/` | Abstrae la persistencia |
 | **Use Case / Interactor** | `application/` | Encapsula lógica de negocio |
 | **Value Object** | `domain/value_objects/` | Tipos con validación (Email, Hash) |
-| **Adapter** | `infrastructure/` | Implementaciones concretas (SQLite, API) |
+| **Adapter** | `infrastructure/` | Implementaciones concretas (PostgreSQL, API) |
 | **Dependency Injection** | `main.rs` | Composición sin acoplamiento |
 | **Result / Error Handling** | Toda la app | Manejo explícito de errores con `thiserror` |
 

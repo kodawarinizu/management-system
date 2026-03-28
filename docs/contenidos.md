@@ -98,8 +98,10 @@ async fn execute(&self, ...) -> Result<Employee, DomainError> {
 **5. `async_trait`**
 Los traits con métodos async requieren la librería `async-trait` (por limitaciones del compilador actual). El macro `#[async_trait]` resuelve esto automáticamente.
 
-**6. `sqlx` — queries asíncronos**
-`sqlx` permite ejecutar SQL con tipos verificados en compilación. Lo básico que necesitas: `SqlitePool::connect()`, `sqlx::query().bind().execute()`, y `sqlx::query_as!()` para mapear resultados a structs.
+**6. `sqlx` — queries asíncronos con PostgreSQL 18**
+`sqlx` permite ejecutar SQL con tipos verificados en compilación. Lo básico que necesitas: `PgPool::connect()`, `sqlx::query().bind().execute()`, y `sqlx::query_as!()` para mapear resultados a structs.
+
+A diferencia de SQLite, PostgreSQL usa `$1, $2, $3...` como placeholders en vez de `?`. Además, PostgreSQL 18 soporta UUID nativo, por lo que no hace falta convertir a String — `sqlx` lo maneja directamente con el feature `uuid`.
 
 **7. Inyección de dependencias manual**
 En Rust no hay un framework de DI como en Python. La DI se hace pasando el repositorio como argumento al constructor del use case. Entender este patrón es clave para toda la arquitectura.
@@ -235,8 +237,8 @@ domain/ports/employee_repository.rs
 application/employee/create_employee.rs
     → Arc<dyn Trait>, async/await, inyección de dependencias
 
-infrastructure/persistence/sqlite_employee_repo.rs
-    → sqlx, async, impl Trait for Struct
+infrastructure/persistence/postgres_employee_repo.rs
+    → sqlx (PgPool), async, impl Trait for Struct, placeholders $1..$N
 
 infrastructure/external_api/country_api_adapter.rs
     → reqwest, serde_json::Value, async
