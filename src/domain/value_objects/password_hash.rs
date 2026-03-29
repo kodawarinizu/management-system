@@ -19,7 +19,17 @@ impl HashedPassword {
             Err(e) => Err(DomainError::HashError(e.to_string()))
         }
     }
-    pub fn verify(&self) -> bool {
-        true
+    pub fn verify(&self, value: &str) -> Result<bool, DomainError> {
+        let parsed_hash = PasswordHash::new(&self.0)
+            .map_err(|e| DomainError::HashError(e.to_string()))?;
+
+        Ok(Argon2::default()
+            .verify_password(value.as_bytes(), &parsed_hash).is_ok())
+
+
+    }
+
+    pub fn value(&self) -> &str {
+        &self.0
     }
 }
