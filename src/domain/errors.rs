@@ -6,6 +6,8 @@ pub enum DomainError {
     InvalidEmail(String),
     #[error("[PasswordHash Error!]: {0}")]
     HashError(String),
-    #[error("[DataBase Erro!]: {0}")]
+    #[error("[DataBase Error!]: {0}")]
     DatabaseError(String),
+    #[error("[Departament Error]: {0}")]
+    DepartamentError(String)
 }
