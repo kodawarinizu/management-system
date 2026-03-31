@@ -2,6 +2,10 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum DomainError {
+    #[error("[Employee Error]: {0}")]
+    EmployeeError(String),
+    #[error("[Invalid Salary]: {0}")]
+    InvalidSalary(String),
     #[error("[Invalid Email!]: {0}")]
     InvalidEmail(String),
     #[error("[PasswordHash Error!]: {0}")]
