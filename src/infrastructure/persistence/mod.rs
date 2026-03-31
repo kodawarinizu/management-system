@@ -1,1 +1,1 @@
-pub mod postgres_employee_repo;
+pub mod postgres_employee_repository;
