@@ -1,8 +1,9 @@
 use std::fmt;
 use std::str::FromStr;
-use rust_decimal::Decimal;
 use sqlx::{FromRow, Row};
 use uuid::Uuid;
+use rust_decimal::Decimal;
+use rust_decimal_macros::dec;
 
 use crate::domain::value_objects::{email::Email, password_hash::HashedPassword};
 use crate::domain::errors::DomainError;
@@ -44,6 +45,18 @@ impl Employee {
             salary,
             active: true,
         }
+    }
+
+    fn update_salary (mut self, salary: Decimal) -> Result<(), DomainError>{
+        if salary > dec!(0) {
+            Ok(self.salary = salary)
+        }
+        else {
+            Err(DomainError::InvalidSalary(salary.to_string()))
+        }
+    }
+    fn desactivate (mut self) {
+        self.active = false
     }
 }
 
