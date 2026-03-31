@@ -4,6 +4,7 @@ use rust_decimal::Decimal;
 use sqlx::{FromRow, Row};
 use uuid::Uuid;
 
+use crate::domain::value_objects::{email::Email, password_hash::HashedPassword};
 use crate::domain::errors::DomainError;
 
 #[derive(Clone, PartialEq)]
@@ -15,8 +16,36 @@ pub enum Departament {
     Operations,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct Employee {
+    pub id: Uuid,
+    pub name:  String,
+    pub departament: Departament,
+    pub email: String,
+    pub password_hash: String,
+    pub salary: Decimal,
+    pub active: bool,
+}
 
-
+impl Employee {
+    pub fn new(
+        name: String,
+        departament: Departament,
+        email: Email,
+        password: HashedPassword,
+        salary: Decimal,
+    ) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            name,
+            departament,
+            email: email.value().to_string(),
+            password_hash: password.value().to_string(),
+            salary,
+            active: true,
+        }
+    }
+}
 
 // * Temporaly i don't want to use this trait
 impl FromStr for Departament {
@@ -58,16 +87,6 @@ impl fmt::Debug for Departament {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Employee {
-    pub id: Uuid,
-    pub name:  String,
-    pub departament: Departament,
-    pub email: String,
-    pub password_hash: String,
-    pub salary: Decimal,
-    pub active: bool,
-}
 
 //*! sqlx: Manual mapping for Employee entity 
 impl FromRow<'_, sqlx::postgres::PgRow> for Employee {
