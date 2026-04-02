@@ -25,7 +25,7 @@ impl PostgressEmployeeRepository {
 
 #[async_trait]
 impl EmployeeRepository for PostgressEmployeeRepository {
-    async fn save(&self, employee: Employee) -> Result<(), DomainError> {
+    async fn save(&self, employee: &Employee) -> Result<(), DomainError> {
         sqlx::query(r"
         INSERT INTO employees (
         id,
@@ -37,13 +37,13 @@ impl EmployeeRepository for PostgressEmployeeRepository {
         active
         ) VALUES ($1,$2,$3,$4,$5,$6,$7)
         ")
-        .bind(employee.id)
-        .bind(employee.name)
-        .bind(format!("{}", employee.departament))
-        .bind(employee.email)
-        .bind(employee.password_hash)
-        .bind(employee.salary)
-        .bind(employee.active)
+        .bind(&employee.id)
+        .bind(&employee.name)
+        .bind(format!("{}", &employee.departament))
+        .bind(&employee.email)
+        .bind(&employee.password_hash)
+        .bind(&employee.salary)
+        .bind(&employee.active)
         .execute(&self.pool)
         .await
         .map_err(|e| DomainError::DatabaseError(e.to_string()))?;
@@ -76,7 +76,7 @@ impl EmployeeRepository for PostgressEmployeeRepository {
         Ok(employee)
     }
 
-    async fn update(&self, employee: Employee) -> Result<(), DomainError> {
+    async fn update(&self, employee: &Employee) -> Result<(), DomainError> {
         sqlx::query(r"
             UPDATE employees SET
                 name          = $1,
@@ -88,12 +88,12 @@ impl EmployeeRepository for PostgressEmployeeRepository {
             WHERE id = $7
         ")
         .bind(&employee.name)
-        .bind(employee.departament.to_string())
+        .bind(&employee.departament.to_string())
         .bind(&employee.email)
         .bind(&employee.password_hash)
-        .bind(employee.salary)
-        .bind(employee.active)
-        .bind(employee.id)
+        .bind(&employee.salary)
+        .bind(&employee.active)
+        .bind(&employee.id)
         .execute(&self.pool)
         .await
         .map_err(|e| DomainError::DatabaseError(e.to_string()))?;
