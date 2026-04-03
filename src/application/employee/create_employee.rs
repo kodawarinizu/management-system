@@ -19,7 +19,8 @@ impl CreateEmployeeUseCase {
     pub fn new (repo: Arc<dyn EmployeeRepository>) -> Self {
         Self { repository: repo }
     }
-    async fn execute (&self, input: CreateEmployeeInput) -> Result<Employee, DomainError> {
+
+    pub async fn execute (&self, input: CreateEmployeeInput) -> Result<Employee, DomainError> {
         let email = Email::new(&input.email)?;
         if self.repository.find_by_email(&email.value()).await?.is_some() {
             return Err(DomainError::InvalidEmail(email.value().to_string()));
