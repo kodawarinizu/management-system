@@ -52,7 +52,7 @@ impl EmployeeRepository for PostgressEmployeeRepository {
     
     }
     
-    async fn find_by_id (&self, id: Uuid) -> Result<Option<Employee>, DomainError> {
+    async fn find_by_id (&self, id: &Uuid) -> Result<Option<Employee>, DomainError> {
         let employee: Option<Employee> = sqlx::query_as(r"
             SELECT * FROM employees WHERE id = $1
         ")
