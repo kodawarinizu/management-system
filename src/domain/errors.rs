@@ -9,5 +9,9 @@ pub enum DomainError {
     #[error("[DataBase Error!]: {0}")]
     DatabaseError(String),
     #[error("[Departament Error]: {0}")]
-    DepartamentError(String)
+    DepartamentError(String),
+    #[error("[Duplicate Email!]")]
+    DuplicateEmail,
+    #[error("[Employee Not Found!]: {0}")]
+    EmployeeNotFound(String),
 }
