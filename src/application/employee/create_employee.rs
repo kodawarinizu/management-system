@@ -21,9 +21,12 @@ impl CreateEmployeeUseCase {
     }
 
     pub async fn execute (&self, input: CreateEmployeeInput) -> Result<Employee, DomainError> {
+        tracing::info!("Creando empleado con email: {}", input.email);
+
         let email = Email::new(&input.email)?;
         if self.repository.find_by_email(&email.value()).await?.is_some() {
-            return Err(DomainError::InvalidEmail(email.value().to_string()));
+            tracing::warn!("Email duplicado: {}", email.value());
+            return Err(DomainError::DuplicateEmail);
         }
 
         let passhash = HashedPassword::new(&input.password_hash)?;
@@ -38,6 +41,7 @@ impl CreateEmployeeUseCase {
 
         self.repository.save(&employee).await?;
 
+        tracing::info!("Empleado creado exitosamente: {}", &employee.email);
         Ok(employee)
     }
 }
