@@ -3,6 +3,10 @@ name = "sistema_gestion"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "sistema_gestion"
+path = "src/lib.rs"
+
 [dependencies]
 # --- Core & Async ---
 tokio = { version = "1.50.0", features = ["full"] }
