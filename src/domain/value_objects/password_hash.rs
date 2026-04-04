@@ -9,6 +9,8 @@ use argon2::{
 };
 
 use crate::domain::errors::DomainError;
+
+#[derive(Clone)]
 pub struct HashedPassword(String);
 impl HashedPassword {
     pub fn new (value: &str) -> Result<Self, DomainError>{
