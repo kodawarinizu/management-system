@@ -2,6 +2,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum DomainError {
+    #[error("[External API Error]: {0}")]
+    ExternalApiError(String),
+
     #[error("[Invalid Credentials!]: {0}")]
     InvalidCredentials(String),
 
