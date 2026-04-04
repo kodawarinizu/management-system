@@ -1,3 +1,5 @@
+use std::fmt;
+
 use argon2::{
      password_hash::{
          rand_core::OsRng,
@@ -19,6 +21,14 @@ impl HashedPassword {
             Err(e) => Err(DomainError::HashError(e.to_string()))
         }
     }
+
+    pub fn from_hash (hash: &str) -> Result<Self, DomainError> {
+        let hash = PasswordHash::new(&hash)
+            .map_err(|_| DomainError::HashError("".to_string()))?;
+        Ok(Self(hash.to_string()))
+        
+    }
+
     pub fn verify(&self, value: &str) -> Result<bool, DomainError> {
         let parsed_hash = PasswordHash::new(&self.0)
             .map_err(|e| DomainError::HashError(e.to_string()))?;
@@ -31,5 +41,11 @@ impl HashedPassword {
 
     pub fn value(&self) -> &str {
         &self.0
+    }
+}
+
+impl fmt::Debug for HashedPassword {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "HashedPassword([REDACTED])")  // oculto en producción
     }
 }
