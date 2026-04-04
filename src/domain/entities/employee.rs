@@ -17,6 +17,7 @@ pub enum Departament {
     Operations,
 }
 
+#[derive(Clone)]
 pub struct Employee {
     pub id: Uuid,
     pub name:  String,
