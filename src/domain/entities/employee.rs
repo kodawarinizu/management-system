@@ -17,13 +17,12 @@ pub enum Departament {
     Operations,
 }
 
-#[derive(Debug, Clone, PartialEq)]
 pub struct Employee {
     pub id: Uuid,
     pub name:  String,
     pub departament: Departament,
     pub email: String,
-    pub password_hash: String,
+    pub password_hash: HashedPassword,
     pub salary: Decimal,
     pub active: bool,
 }
@@ -41,7 +40,7 @@ impl Employee {
             name,
             departament,
             email: email.value().to_string(),
-            password_hash: password.value().to_string(),
+            password_hash: password,
             salary,
             active: true,
         }
@@ -107,13 +106,16 @@ impl FromRow<'_, sqlx::postgres::PgRow> for Employee {
         let deps: String = row.try_get("departament")?;
         let departament: Departament = deps.parse::<Departament>()
         .map_err(|e| sqlx::Error::TypeNotFound { type_name: e.to_string() })?;
-
+        
+        let password = HashedPassword::from_hash(row.try_get("password_hash")?)
+        .map_err(|e| sqlx::Error::TypeNotFound { type_name: e.to_string()})?;
+        
         Ok( Self { 
         id: row.try_get("id")?, 
         name: row.try_get("name")?, 
         departament: departament,
         email: row.try_get("email")?, 
-        password_hash: row.try_get("password_hash")?, 
+        password_hash: password, 
         salary: row.try_get("salary")?, 
         active: row.try_get("active")? 
         
