@@ -27,7 +27,7 @@ impl EmployeeRepository for MockEmployeeRepository {
     async fn find_by_email(&self, email: &str) -> Result<Option<Employee>, DomainError> {
         Ok(self.employees.lock().unwrap()
             .iter()
-            .find(|e| e.email == email)
+            .find(|e| e.email.value() == email)
             .cloned())
     }
 

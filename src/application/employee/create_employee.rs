@@ -41,7 +41,7 @@ impl CreateEmployeeUseCase {
 
         self.repository.save(&employee).await?;
 
-        tracing::info!("Empleado creado exitosamente: {}", &employee.email);
+        tracing::info!("Empleado creado exitosamente: {}", &employee.email.value());
         Ok(employee)
     }
 }
