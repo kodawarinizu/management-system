@@ -1,12 +1,12 @@
-use std::fmt;
-use std::str::FromStr;
-use sqlx::{FromRow, Row};
-use uuid::Uuid;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
+use sqlx::{FromRow, Row};
+use std::fmt;
+use std::str::FromStr;
+use uuid::Uuid;
 
-use crate::domain::value_objects::{email::Email, password_hash::HashedPassword};
 use crate::domain::errors::DomainError;
+use crate::domain::value_objects::{email::Email, password_hash::HashedPassword};
 
 #[derive(Clone, PartialEq)]
 pub enum Departament {
@@ -20,7 +20,7 @@ pub enum Departament {
 #[derive(Clone)]
 pub struct Employee {
     pub id: Uuid,
-    pub name:  String,
+    pub name: String,
     pub departament: Departament,
     pub email: Email,
     pub password_hash: HashedPassword,
@@ -47,15 +47,14 @@ impl Employee {
         }
     }
 
-    fn update_salary (mut self, salary: Decimal) -> Result<(), DomainError>{
+    fn update_salary(mut self, salary: Decimal) -> Result<(), DomainError> {
         if salary > dec!(0) {
             Ok(self.salary = salary)
-        }
-        else {
+        } else {
             Err(DomainError::InvalidSalary(salary.to_string()))
         }
     }
-    fn desactivate (mut self) {
+    fn desactivate(mut self) {
         self.active = false
     }
 }
@@ -70,7 +69,10 @@ impl FromStr for Departament {
             "RRHH" => Ok(Departament::RRHH),
             "Finance" => Ok(Departament::Finance),
             "Operations" => Ok(Departament::Operations),
-            _ => Err(DomainError::DepartamentError(format!("Enum does exist.'{}'", s))),
+            _ => Err(DomainError::DepartamentError(format!(
+                "Enum does exist.'{}'",
+                s
+            ))),
         }
     }
 }
@@ -99,31 +101,35 @@ impl fmt::Debug for Departament {
     }
 }
 
-
-
-//*! sqlx: Manual mapping for Employee entity 
+//*! sqlx: Manual mapping for Employee entity
 impl FromRow<'_, sqlx::postgres::PgRow> for Employee {
     fn from_row(row: &sqlx::postgres::PgRow) -> Result<Self, sqlx::Error> {
         let deps: String = row.try_get("departament")?;
-        let departament: Departament = deps.parse::<Departament>()
-        .map_err(|e| sqlx::Error::TypeNotFound { type_name: e.to_string() })?;
-        
-        let email: Email = Email::new(row.try_get("email")?)
-        .map_err(|e| sqlx::Error::TypeNotFound { type_name: e.to_string() })?;
+        let departament: Departament =
+            deps.parse::<Departament>()
+                .map_err(|e| sqlx::Error::TypeNotFound {
+                    type_name: e.to_string(),
+                })?;
 
-        let password = HashedPassword::from_hash(row.try_get("password_hash")?)
-        .map_err(|e| sqlx::Error::TypeNotFound { type_name: e.to_string()})?;
-        
-        Ok( Self { 
-        id: row.try_get("id")?, 
-        name: row.try_get("name")?, 
-        departament: departament,
-        email: email, 
-        password_hash: password, 
-        salary: row.try_get("salary")?, 
-        active: row.try_get("active")? 
-        
+        let email: Email =
+            Email::new(row.try_get("email")?).map_err(|e| sqlx::Error::TypeNotFound {
+                type_name: e.to_string(),
+            })?;
+
+        let password = HashedPassword::from_hash(row.try_get("password_hash")?).map_err(|e| {
+            sqlx::Error::TypeNotFound {
+                type_name: e.to_string(),
+            }
+        })?;
+
+        Ok(Self {
+            id: row.try_get("id")?,
+            name: row.try_get("name")?,
+            departament: departament,
+            email: email,
+            password_hash: password,
+            salary: row.try_get("salary")?,
+            active: row.try_get("active")?,
         })
     }
-
 }
