@@ -1,11 +1,10 @@
-use std::sync::{Arc, Mutex};
+use async_trait::async_trait;
 use sistema_gestion::domain::{
-    entities::employee::Employee,
-    errors::DomainError,
+    entities::employee::Employee, errors::DomainError,
     ports::employee_repository::EmployeeRepository,
 };
+use std::sync::{Arc, Mutex};
 use uuid::Uuid;
-use async_trait::async_trait;
 
 struct MockEmployeeRepository {
     employees: Mutex<Vec<Employee>>,
@@ -13,7 +12,9 @@ struct MockEmployeeRepository {
 
 impl MockEmployeeRepository {
     fn new() -> Self {
-        Self { employees: Mutex::new(vec![]) }
+        Self {
+            employees: Mutex::new(vec![]),
+        }
     }
 }
 
@@ -25,18 +26,24 @@ impl EmployeeRepository for MockEmployeeRepository {
     }
 
     async fn find_by_email(&self, email: &str) -> Result<Option<Employee>, DomainError> {
-        Ok(self.employees.lock().unwrap()
+        Ok(self
+            .employees
+            .lock()
+            .unwrap()
             .iter()
             .find(|e| e.email.value() == email)
             .cloned())
     }
 
     async fn find_by_id(&self, id: &Uuid) -> Result<Option<Employee>, DomainError> {
-        Ok(self.employees.lock().unwrap()
+        Ok(self
+            .employees
+            .lock()
+            .unwrap()
             .iter()
-            .find(|e| e.id == *id)  // *id para desreferenciar
+            .find(|e| e.id == *id) // *id para desreferenciar
             .cloned())
-}
+    }
 
     async fn find_all(&self) -> Result<Vec<Employee>, DomainError> {
         Ok(self.employees.lock().unwrap().clone())
@@ -59,13 +66,13 @@ impl EmployeeRepository for MockEmployeeRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
-    use sistema_gestion::application::employee::create_employee::{
-        CreateEmployeeInput, CreateEmployeeUseCase
-    };
-    use sistema_gestion::application::auth::login::LoginUseCase;
-    use sistema_gestion::domain::entities::employee::Departament;
     use rust_decimal_macros::dec;
+    use sistema_gestion::application::auth::login::LoginUseCase;
+    use sistema_gestion::application::employee::create_employee::{
+        CreateEmployeeInput, CreateEmployeeUseCase,
+    };
+    use sistema_gestion::domain::entities::employee::Departament;
+    use std::sync::Arc;
 
     #[tokio::test]
     async fn test_crear_empleado_exitoso() {

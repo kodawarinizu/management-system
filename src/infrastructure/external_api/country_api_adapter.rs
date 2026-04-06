@@ -1,9 +1,6 @@
+use crate::domain::{errors::DomainError, ports::external_api::CountryApiPort};
 use async_trait::async_trait;
 use reqwest::Client;
-use crate::domain::{
-    ports::external_api::CountryApiPort,
-    errors::DomainError,
-};
 
 pub struct RestCountriesAdapter {
     client: Client,
@@ -24,7 +21,8 @@ impl CountryApiPort for RestCountriesAdapter {
     async fn fetch_country_info(&self, country: &str) -> Result<serde_json::Value, DomainError> {
         let url = format!("{}/name/{}", self.base_url, country);
 
-        let response = self.client
+        let response = self
+            .client
             .get(&url)
             .send()
             .await

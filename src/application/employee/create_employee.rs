@@ -1,10 +1,16 @@
+use crate::{
+    application::employee::{self, create_employee},
+    domain::{
+        entities::employee::{Departament, Employee},
+        errors::DomainError,
+        ports::employee_repository::EmployeeRepository,
+        value_objects::{email::Email, password_hash::HashedPassword},
+    },
+};
 use std::sync::Arc;
-use crate::{application::employee::{self, create_employee}, domain::{
-    entities::employee::{Departament, Employee}, errors::DomainError, ports::employee_repository::EmployeeRepository, value_objects::{email::Email, password_hash::HashedPassword}
-}};
 
 pub struct CreateEmployeeInput {
-    pub name:  String,
+    pub name: String,
     pub departament: Departament,
     pub email: String,
     pub password_hash: String,
@@ -16,28 +22,27 @@ pub struct CreateEmployeeUseCase {
 }
 
 impl CreateEmployeeUseCase {
-    pub fn new (repo: Arc<dyn EmployeeRepository>) -> Self {
+    pub fn new(repo: Arc<dyn EmployeeRepository>) -> Self {
         Self { repository: repo }
     }
 
-    pub async fn execute (&self, input: CreateEmployeeInput) -> Result<Employee, DomainError> {
+    pub async fn execute(&self, input: CreateEmployeeInput) -> Result<Employee, DomainError> {
         tracing::info!("Creando empleado con email: {}", input.email);
 
         let email = Email::new(&input.email)?;
-        if self.repository.find_by_email(&email.value()).await?.is_some() {
+        if self
+            .repository
+            .find_by_email(&email.value())
+            .await?
+            .is_some()
+        {
             tracing::warn!("Email duplicado: {}", email.value());
             return Err(DomainError::DuplicateEmail);
         }
 
         let passhash = HashedPassword::new(&input.password_hash)?;
 
-        let employee = Employee::new(
-            input.name, 
-            input.departament, 
-            email,
-            passhash, 
-            input.salary
-        );
+        let employee = Employee::new(input.name, input.departament, email, passhash, input.salary);
 
         self.repository.save(&employee).await?;
 

@@ -1,10 +1,11 @@
-use std::sync::Arc;
 use crate::domain::{
     entities::employee::{Departament, Employee},
     errors::DomainError,
-    ports::employee_repository::EmployeeRepository, value_objects::email::Email,
+    ports::employee_repository::EmployeeRepository,
+    value_objects::email::Email,
 };
 use rust_decimal::Decimal;
+use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct UpdateEmployeeInput {
@@ -26,7 +27,8 @@ impl UpdateEmployeeUseCase {
     }
 
     pub async fn execute(&self, input: UpdateEmployeeInput) -> Result<Employee, DomainError> {
-        let mut employee = self.repository
+        let mut employee = self
+            .repository
             .find_by_id(&input.id)
             .await?
             .ok_or(DomainError::EmployeeNotFound(input.id.to_string()))?;
