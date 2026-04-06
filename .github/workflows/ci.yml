@@ -3,8 +3,19 @@ name: CI
 on:
   push:
     branches: [ develop ]
+  jobs:
+    test:
+      steps:
+        - cargo test
+on:
   pull_request:
-    branches: [ develop, main ]
+    branches: [ main ]
+jobs:
+  quality:
+    steps:
+      - cargo fmt --check
+      - cargo clippy -- -D warnings
+      - cargo test
 
 jobs:
   test:
