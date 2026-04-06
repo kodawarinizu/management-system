@@ -1,24 +1,11 @@
-name: CI
+name: CI Main
 
-on:
-  push:
-    branches: [ develop ]
-  jobs:
-    test:
-      steps:
-        - cargo test
 on:
   pull_request:
     branches: [ main ]
-jobs:
-  quality:
-    steps:
-      - cargo fmt --check
-      - cargo clippy -- -D warnings
-      - cargo test
 
 jobs:
-  test:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
