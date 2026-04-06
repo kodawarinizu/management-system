@@ -2,7 +2,7 @@ use crate::domain::errors::DomainError;
 use regex::Regex;
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Email(String);
 impl Email {
     pub fn new (value: &str) -> Result<Self, DomainError> {

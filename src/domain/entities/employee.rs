@@ -22,7 +22,7 @@ pub struct Employee {
     pub id: Uuid,
     pub name:  String,
     pub departament: Departament,
-    pub email: String,
+    pub email: Email,
     pub password_hash: HashedPassword,
     pub salary: Decimal,
     pub active: bool,
@@ -40,7 +40,7 @@ impl Employee {
             id: Uuid::new_v4(),
             name,
             departament,
-            email: email.value().to_string(),
+            email: email,
             password_hash: password,
             salary,
             active: true,
@@ -108,6 +108,9 @@ impl FromRow<'_, sqlx::postgres::PgRow> for Employee {
         let departament: Departament = deps.parse::<Departament>()
         .map_err(|e| sqlx::Error::TypeNotFound { type_name: e.to_string() })?;
         
+        let email: Email = Email::new(row.try_get("email")?)
+        .map_err(|e| sqlx::Error::TypeNotFound { type_name: e.to_string() })?;
+
         let password = HashedPassword::from_hash(row.try_get("password_hash")?)
         .map_err(|e| sqlx::Error::TypeNotFound { type_name: e.to_string()})?;
         
@@ -115,7 +118,7 @@ impl FromRow<'_, sqlx::postgres::PgRow> for Employee {
         id: row.try_get("id")?, 
         name: row.try_get("name")?, 
         departament: departament,
-        email: row.try_get("email")?, 
+        email: email, 
         password_hash: password, 
         salary: row.try_get("salary")?, 
         active: row.try_get("active")? 

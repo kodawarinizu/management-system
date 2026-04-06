@@ -1,8 +1,8 @@
 use std::sync::Arc;
 use crate::domain::{
-    entities::employee::{Employee, Departament},
+    entities::employee::{Departament, Employee},
     errors::DomainError,
-    ports::employee_repository::EmployeeRepository,
+    ports::employee_repository::EmployeeRepository, value_objects::email::Email,
 };
 use rust_decimal::Decimal;
 use uuid::Uuid;
@@ -11,7 +11,7 @@ pub struct UpdateEmployeeInput {
     pub id: Uuid,
     pub name: String,
     pub departament: Departament,
-    pub email: String,
+    pub email: Email,
     pub salary: Decimal,
     pub active: bool,
 }
