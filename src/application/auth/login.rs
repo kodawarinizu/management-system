@@ -1,8 +1,7 @@
 use std::sync::Arc;
-
 use crate::domain::{
     entities::employee::Employee, errors::DomainError,
-    ports::employee_repository::EmployeeRepository, value_objects::password_hash::HashedPassword,
+    ports::employee_repository::EmployeeRepository
 };
 
 pub struct LoginUseCase {

@@ -1,5 +1,9 @@
-use sistema_gestion::application;
-use sistema_gestion::domain;
-use sistema_gestion::infrastructure;
+use sistema_gestion::infrastructure::cli::menu::Menu;
 
-fn main() {}
+#[tokio::main]
+async fn main() {
+    let menu = Menu::new();
+    if let Err(e) = menu.main().await {
+        eprintln!("{}", e);
+    }
+}
