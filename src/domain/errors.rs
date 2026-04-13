@@ -31,4 +31,7 @@ pub enum DomainError {
 
     #[error("[Employee Not Found!]: {0}")]
     EmployeeNotFound(String),
+
+    #[error("[Menu Error!]: {0}")]
+    MenuError(String),
 }

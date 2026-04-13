@@ -43,7 +43,7 @@ impl EmployeeRepository for PostgressEmployeeRepository {
         )
         .bind(&employee.id)
         .bind(&employee.name)
-        .bind(format!("{}", &employee.departament))
+        .bind(&employee.departament.to_string())
         .bind(&employee.email.value())
         .bind(&employee.password_hash.value())
         .bind(&employee.salary)
